@@ -4,15 +4,20 @@ import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.ru.Допустим;
 import io.cucumber.java.ru.И;
+import managers.PropertiesManager;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +26,8 @@ public class WarePageTest {
 
     private static WebDriver webDriver;
     private WebDriverWait wait;
+
+    private final PropertiesManager propertiesManager = PropertiesManager.getPropertiesManager();
 
     @Before
     public void before() {
@@ -110,6 +117,18 @@ public class WarePageTest {
         wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
     }
 
+    private void initRemoteDriver(){
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setBrowserName(propertiesManager.getProperty("type.browser"));
+        capabilities.setVersion("109.0");
+        capabilities.setCapability("enableVNC", true);
+        capabilities.setCapability("enableVideo", false);
+        try {
+            webDriver = new RemoteWebDriver(URI.create(propertiesManager.getProperty("selenoid.url")).toURL(), capabilities);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @After
     public void after(){
